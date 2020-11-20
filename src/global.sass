@@ -1,0 +1,201 @@
+$green: #4bad48
+$blue: #38a5b8
+$bg-color: #1f232c
+$white: #efefef
+$grey: desaturate(lighten($bg-color, 30%), 10%)
+
+@keyframes spin
+  0%
+    transform: scale(1) rotate(0deg)
+  50%
+    transform: scale(0.8) rotate(160deg)
+  100%
+    transform: scale(1) rotate(359deg)
+
+@mixin btn-border-drawing($color: #ccc, $hover: black, $width: 2px, $duration: 0.3s, $back-duration: $duration/2)
+  box-shadow: inset 0 0 0 $width $color
+  position: relative
+  
+  &::before, &::after
+    border: 0 solid transparent
+    content: ''
+    pointer-events: none
+    position: absolute
+    width: 0
+    height: 0
+    top: 0 
+    left: 0
+    transition: border-color 0s, width $back-duration, height $back-duration
+ 
+  &::before
+    border-top-width: $width
+    border-right-width: $width
+    transition-delay: $back-duration*2, $back-duration, 0s
+
+ 
+  &::after
+    border-bottom-width: $width
+    border-left-width: $width
+    transition-delay: $back-duration*2, 0s, $back-duration
+
+ 
+  &:hover
+    &::before, &::after
+      transition: border-color 0s, width $duration, height $duration
+      border-color: $hover
+      width: 100%
+      height: 100%
+   
+    &::before
+      transition-delay: 0s, 0s, $duration
+    
+    &::after
+      transition-delay: 0s, $duration, 0s
+
+@mixin btn($color: $green, $border-width: 2px)
+  @include btn-border-drawing($color, $white, $border-width, .3s)
+  background: none
+  position: relative
+  border: none
+  display: flex
+  align-items: center
+  justify-content: space-around
+  font-weight: 500
+  font-family: inherit
+  font-size: 1em
+  padding: .5em 2em
+  letter-spacing: 0.05em
+  background: no-repeat center radial-gradient(circle at center, transparent 0%, transparent 0.1%, $white 0.1%, $white 50%, transparent 50%)
+  background-size: 0%
+  cursor: pointer
+  transition: background-size 0.5s 0.1s 
+  @keyframes in
+      0%
+        background-size: 205%
+      100%
+        background-size: 100000%
+    
+  @keyframes inradio
+    0%
+      background-size: 250%
+    100%
+      background-size: 130000%
+
+  &:disabled
+    pointer-events: none
+
+  span:after
+    display: block
+    opacity: 0
+    position: absolute
+    top: 50%
+    left: 50%
+    content: ''
+    width: 1em
+    height: 1em
+    border: $border-width solid $white
+    margin: -0.5em 0 0 -0.5em
+    transform: scale(0)
+    transition: border-color 0.2s 0.1s
+
+  span
+    color: $color
+    fill: $color
+    transition: color 0.3s 0.3s
+
+  &:hover
+    transition: background-size 0.5s 0.2s 
+    span
+      transition: color 0.3s 0.2s, fill 0.3s 0.2s !important
+      color: $bg-color
+      fill: $bg-color
+
+  &:hover
+    background-size: 205%
+
+  &.radio:hover
+    background-size: 250%
+
+
+  &:focus, &.waiting
+    &:not(.radio)
+      animation: in 1s
+      animation-fill-mode: forwards
+
+    &.radio
+      animation: inradio 1s
+      animation-fill-mode: forwards
+
+    background-size: 0%
+
+    span:not(:hover)
+      transition: color 0.2s 0s, fill 0.1s 0s
+      color: transparent
+      fill: transparent
+
+    span:after
+      opacity: 1
+      animation: spin 1s infinite cubic-bezier(.51,.59,.57,.65)
+      animation-delay: -0.6s
+     
+
+    &:not(:hover):not(:active)
+      box-shadow: inset 0 0 0 $border-width $blue
+      span:after
+        border-color: $blue
+
+  &.selected
+    box-shadow: inset 0 0 0 $border-width $blue
+
+@mixin big-btn($color: $green)
+  @include btn($color, 3px)
+  padding: 1em 2em
+  font-weight: 700
+
+
+@mixin text-input($border-width: 3px)
+  max-width: 100%
+  height: min-content
+  position: relative
+  overflow: hidden
+
+
+  input[type="text"]
+    margin: 0.5em
+    text-align: left
+    font-family: inherit
+    background: none
+    border: none
+    color: $white
+    font-size: 1.25rem
+    position: relative
+    letter-spacing: 0.05em
+
+
+    &:focus
+      outline: none
+
+    &::placeholder
+      color: $grey
+
+  input[type="text"]:focus + label, .selected
+    transform: translateX(0)
+    transition: transform 0.6s ease-in-out
+
+  label
+    position: absolute
+    bottom: 0
+    left: 0
+    height: $border-width
+    width: 200%
+    transform: translateX(-50%)
+    background: linear-gradient(to right, $blue 50.01%, $white 50.01%)
+    transition: transform 0.15s ease-in-out
+
+  span
+    position: absolute
+    bottom: 0.5em
+    right: 0.5em
+    color: darken($white, 5%)
+    letter-spacing: 0.05em
+    font-size: 1.25rem
