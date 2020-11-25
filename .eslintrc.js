@@ -14,6 +14,7 @@ module.exports = {
     'public/', 'dist/',
   ],
   rules: {
+    'vue/require-v-for-key': 'off',
     'no-console': 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-shadow': ['error', { allow: ['state'] }], // vuex exception

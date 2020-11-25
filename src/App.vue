@@ -1,76 +1,82 @@
 <template>
   <div id="app">
-    <h1>CIDR</h1>
-    <div class="filter">
-      <h2>Filter</h2>
+    <h1 class="title">
+      IPv4 Classless Inter-Domain Routing
+    </h1>
+    <div class="slider-container">
+      <div class="slider-labels">
+        <span
+          v-for="n in 34"
+          :key="n"
+          :class="{all: n === 34, current: n-1 === Number(cidr)}"
+          @click="() => cidr=n-1"
+        >{{ n === 34 ? 'All' : n - 1 }}</span>
+      </div>
       <div class="slider">
-        <button @click="step(false)">
-          -
+        <button :disabled="!Number(cidr)" @click="step(false)">
+          &lt;
         </button>
         <input
+          ref="sliderInput"
           v-model="cidr"
           type="range"
-          min="1"
+          min="0"
           max="33"
           step="1"
         >
-        <button @click="step(true)">
-          +
+        <button :disabled="Number(cidr) === 33" @click="step(true)">
+          &gt;
         </button>
-      </div>
-      <div class="number">
-        <input
-          v-model="cidr"
-          type="number"
-          min="1"
-          max="33"
-        >
       </div>
     </div>
 
-    <h2>{{ cidr > 32 ? 'Display all' : '/' + cidr }}</h2>
-    <table>
-      <thead>
-        <tr>
-          <td>CIDR</td>
-          <td>Binary Mask</td>
-          <td>Decimal Mask</td>
-          <td>Supported Hosts</td>
-          <td>Formula</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in filteredChart" :key="row.cidr">
-          <td>/<span class="cidr" :style="`--value: ${row.cidr + 60}`">{{ row.cidr }}</span></td>
-          <td class="binary">
-            <span v-for="(group, groupIndex) in row.binary" :key="groupIndex">
-              <span class="group" :style="`--value: ${parseInt(group, 2) ? 255 - (parseInt(group, 2)) : 255}`">{{ group }}</span>
-              <span v-show="groupIndex !== 3" class="separator">.</span>
-            </span>
-          </td>
-          <td class="decimal">
-            <span v-for="(group, groupIndex) in row.decimal" :key="groupIndex">
-              <span class="group" :style="`--value: ${Number(group) ? 255 - Number(group) : 255}`">{{ group }}</span>
-              <span v-show="groupIndex !== 3" class="separator">.</span>
-            </span>
-          </td>
-          <td class="hosts" :style="`--value: ${(Math.cbrt(row.hosts) / 5).toFixed()}`">
-            {{ row.hosts.toLocaleString() }}
-          </td>
-          <td>2<sup class="pow" :style="`--value: ${32 - row.cidr + 60}`">{{ 32 - row.cidr }}</sup> - 2</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="grid-container">
+      <h3 class="cidr-column">
+        CIDR
+      </h3>
+      <h3>Binary Mask</h3>
+      <h3 class="decimal-column">
+        Decimal Mask
+      </h3>
+      <h3>Supported Hosts</h3>
+      <h3>Formula</h3>
+      <template v-for="row in chart">
+        <div class="grid-cell cidr">
+          /<span class="cidr-number" :style="`--value: ${row.cidr + 60}`">{{ row.cidr }}</span>
+        </div>
+        <div class="grid-cell binary">
+          <span v-for="(group, groupIndex) in row.binary" :key="groupIndex">
+            <span class="group" :style="`--value: ${parseInt(group, 2) ? 255 - (parseInt(group, 2)) : 255}`">{{ group }}</span>
+            <span v-show="groupIndex !== 3" class="separator">.</span>
+          </span>
+        </div>
+        <div class="grid-cell decimal">
+          <span v-for="(group, groupIndex) in row.decimal" :key="groupIndex">
+            <span class="group" :style="`--value: ${Number(group) ? 255 - Number(group) : 255}`">{{ group }}</span>
+            <span v-show="groupIndex !== 3" class="separator">.</span>
+          </span>
+        </div>
+        <div class="grid-cell hosts" :style="`--value: ${(Math.cbrt(row.hosts) / 5).toFixed()}`">
+          {{ row.hosts.toLocaleString() }}
+        </div>
+        <div class="grid-cell">
+          2<sup class="pow" :style="`--value: ${32 - row.cidr + 60}`">{{ 32 - row.cidr }}</sup> - 2
+        </div>
+      </template>
+    </div>
   </div>
 </template>
 
 <script>
+/* eslint-disable no-param-reassign */
+
+const sleep = (t) => new Promise((resolve) => setTimeout(resolve, t));
+
 export default {
   name: 'App',
   data() {
     return {
-      cidr: 33,
-      userIP: '192.168.1.1',
+      cidr: '33',
     };
   },
   computed: {
@@ -86,14 +92,44 @@ export default {
         };
       });
     },
-    filteredChart() {
-      return this.chart.filter((row) => (this.cidr > 32 ? true : row.cidr === Number(this.cidr)));
+  },
+  watch: {
+    async cidr(current, previous) {
+      if (Number(current) === 33) {
+        document.querySelectorAll('.grid-container .grid-cell')
+          .forEach((el) => {
+            el.style.display = 'block';
+          });
+
+        this.$refs.sliderInput.style.transitionDuration = '2s';
+        this.$refs.sliderInput.style.backgroundPosition = '0% 75%';
+        await sleep(2000);
+        this.$refs.sliderInput.style.animation = 'rainbow 60s ease infinite';
+      } else {
+        document.querySelectorAll('.grid-container .grid-cell')
+          .forEach((el) => {
+            el.style.display = 'none';
+          });
+        document.querySelectorAll(`.grid-container .grid-cell:nth-child(n+${(current * 5) + 6}):nth-child(-n+${(current * 5) + 10})`)
+          .forEach((el) => {
+            el.style.display = 'block';
+          });
+
+        if (Number(previous) === 33) {
+          this.$refs.sliderInput.style.backgroundPosition = window.getComputedStyle(this.$refs.sliderInput).getPropertyValue('background-position');
+          this.$refs.sliderInput.style.animation = 'unset';
+          await sleep(50);
+        } else {
+          this.$refs.sliderInput.style.transitionDuration = '0.2s';
+        }
+        this.$refs.sliderInput.style.backgroundPosition = `${(current / 33 * 50) + 25}% ${(current / 33 * 50) + 25}%`;
+      }
     },
   },
   methods: {
     step(dir) {
       if (dir) {
-        if (this.cidr < 33) {
+        if (Number(this.cidr) < 33) {
           this.cidr = Number(this.cidr) + 1;
         }
       } else if (this.cidr > 0) {
@@ -105,6 +141,23 @@ export default {
 </script>
 
 <style lang="sass">
+$green: #4bad48
+$blue: #38a5b8
+$bg-color: #1f232c
+$white: #efefef
+$grey: desaturate(lighten($bg-color, 40%), 10%)
+
+@keyframes rainbow
+  0%
+    background-position: 0% 75%
+  @for $i from 1 through 28
+    $keyframe: #{($i * 10)+ "%"}
+    #{$keyframe}
+      background-position: #{random(100)+"%"} #{(random(40) + 25)+"%"}
+  100%
+    background-position: 0% 75%
+
+
 *, ::before, ::after
   box-sizing: border-box
   padding: 0
@@ -112,66 +165,188 @@ export default {
   outline: none
 
 ::selection
-  background-color: darken(rgba($blue, 0.99), 5%)
+  background-color: rgba($blue, 0.3)
 
 body
-  // font-family: Arial, Helvetica, sans-serif
   font-family: "Courier New", Courier, monospace
   font-size: 1.4rem
   color: white
   background: $bg-color
   display: flex
   justify-content: space-around
-  align-items: center
+  min-width: 100vw
+  max-height: 100vh
+  // min-width: 65rem
+  overflow: hidden
+  position: relative
+
+
+#app
   width: 100vw
-  padding: 2em 0
+  max-height: 100vh
+  padding: 1em
+  max-width: 60em
+  display: flex
+  flex-direction: column
+  position: relative
 
-button, input[type="radio"]
-  cursor: pointer
-
-button, input[type="text"]
+.title
   text-align: center
+  font-size: 3vw
+  margin: 1rem 0
 
+.slider-container
+  width: 100%
+  margin: 1.5em 0
 
-table
-  // font-family: msonospace
-  font-size: 1.1rem
-  thead tr td
-    font-weight: bold
-    padding-bottom: 1em
-
-  td:nth-child(1)
-    width: 3em
-    display: inline-block
+  .slider-labels
     overflow: hidden
+    display: flex
+    justify-content: space-between
+    padding: 0 1.5em
 
-thead, tbody
-  display: block
+    span
+      color: #aaa
+      font-size: 0.95rem
+      width: 4em
+      text-align: center
+      cursor: pointer
+      transition: color 0.1s ease-in-out
+      &:hover, &.current
+        color: white
 
-tbody
-  overflow: scroll
-  height: 30vh
+      &.all
+        font-weight: bold
+        font-size: 1.1rem
+        transform: translateY(-0.06rem)
+
+  .slider
+    display: flex
+    justify-content: space-between
+    align-items: center
 
 
-td
-  padding: 0.2em 1em
-  white-space: nowrap
+    button
+      text-align: center
+      cursor: pointer
+      border: none
+      background: none
+      height: 1em
+      color: #ddd
+      font-size: inherit
+      font-weight: bold
+      text-shadow: 1px 1px 20px black
+      transition: color 0.1s ease-in-out
 
-.cidr
-  color: hsl(var(--value), 100%, 60%)
+      &:hover
+        color: white
 
-.binary
-  .group
-    color: rgb(var(--value), calc(var(--value) + 130), 255)
+      &:disabled
+        color: $grey
+        cursor: default
 
-.decimal
-  .group
-    color: rgb(255, var(--value), var(--value))
+    input[type="range"]
+      cursor: pointer
+      flex-grow: 1
+      margin: 0 1em
+      width: 100%
+      background: transparent
+      -webkit-appearance: none
+      display: block
+      background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3)
+      background-size: 300% 20000%
+      animation: rainbow 60s ease infinite
+      border-radius: 1px
+      overflow: hidden
+      transition: background 2s ease-in-out
 
-.hosts
-  color: hsl(var(--value), 100%, 60%)
+      &::-webkit-slider-thumb
+        -webkit-appearance: none
+        border: 1px solid #000000
+        height: 1em
+        width: 4em
+        background: white
+        cursor: pointer
+        border: none
+        opacity: 0.9
+        box-shadow: 0 0 5px 5px rgba(black, 0.2)
+        transition: box-shadow 0.05s ease-in-out
 
-.pow
-  color: hsl(var(--value), 100%, 60%)
+      &:active::-webkit-slider-thumb
+        box-shadow: 0 0 5px 5px rgba(black, 0.1)
+
+
+      &::-webkit-slider-runnable-track
+        width: 100%
+
+      &:focus
+        outline: none
+
+.grid-container
+  display: grid
+  grid-template-columns: repeat(5, max-content)
+  column-gap: 2em
+  row-gap: 0.2em
+  overflow-y: scroll
+  overflow-x: auto
+  justify-content: space-between
+  padding-right: 0.2em
+  flex-grow: 1
+
+  &::-webkit-scrollbar
+    width: 4px
+    height: 8px
+  &::-webkit-scrollbar-thumb
+    background-color: #ddd
+  &::-webkit-scrollbar-track
+    background-color: #aaa
+
+  h3, .grid-cell.cidr
+    background-color: $bg-color
+    position: sticky
+
+  h3
+    top: 0
+    z-index: 2
+
+  .grid-cell.cidr, .cidr-column
+    z-index: 1
+    left: 0
+
+  .cidr-column
+    z-index: 3 !important
+
+  .grid-cell
+    transition: opacity 0.2s
+
+  .decimal-column
+    width: 8em
+
+  .cidr-number
+    color: hsl(var(--value), 100%, 60%)
+
+  .binary
+    .group
+      color: rgb(var(--value), calc(var(--value) + 130), 255)
+
+  .decimal
+    .group
+      color: rgb(255, var(--value), var(--value))
+
+  .hosts
+    color: hsl(var(--value), 100%, 60%)
+
+  .pow
+    color: hsl(var(--value), 100%, 60%)
+
+@media (max-width: 700px)
+  #app
+    padding: 0.3em
+
+  .title
+    font-size: 1.2rem
+
+  .slider-labels
+    opacity: 0
 
 </style>
