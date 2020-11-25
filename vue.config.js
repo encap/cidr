@@ -9,5 +9,5 @@ module.exports = {
     },
   },
   outputDir: './docs',
-  assetsDir: 'cidr/',
+  publicPath: './',
 };
