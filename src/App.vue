@@ -180,6 +180,14 @@ body
   overflow: hidden
   position: relative
 
+  &::after
+    content: 'Made by Łukasz Wielgus'
+    position: absolute
+    bottom: 0.2em
+    right: 0.5em
+    color: $grey
+    font-size: 0.8rem
+
 
 #app
   width: 100vw
@@ -189,6 +197,7 @@ body
   display: flex
   flex-direction: column
   position: relative
+
 
 .title
   text-align: center
@@ -340,6 +349,8 @@ body
     color: hsl(var(--value), 100%, 60%)
 
 @media (max-width: 700px)
+  body::after
+    display: none
   #app
     padding: 0.3em
 
