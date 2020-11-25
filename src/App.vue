@@ -182,7 +182,7 @@ body
 
   &::after
     content: 'Made by Łukasz Wielgus'
-    position: absolute
+    position: fixed
     bottom: 0.2em
     right: 0.5em
     color: $grey
