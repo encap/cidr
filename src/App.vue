@@ -51,7 +51,7 @@
                 v-for="(digit, index) in group"
                 :key="index"
                 class="digit"
-                :style="`--value: ${Number(digit) ? 60 : 255}`"
+                :style="`--value: ${Number(digit) ? 100 - Math.round(parseInt(group.split('').reverse().join(''), 2) / 2) : 255}`"
               >{{ digit }}</span>
             </span>
             <span v-show="groupIndex !== 3" class="separator">.</span>
