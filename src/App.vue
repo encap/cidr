@@ -46,8 +46,13 @@
         </div>
         <div class="grid-cell binary">
           <span v-for="(group, groupIndex) in row.binary" :key="groupIndex">
-            <span class="group">{{ group }}
-              <span v-for="(digit, index) in group" :key="index" :style="`--value: ${digit * 255}`">{{ digit }}</span>
+            <span class="group">
+              <span
+                v-for="(digit, index) in group"
+                :key="index"
+                class="digit"
+                :style="`--value: ${Number(digit) ? 60 : 255}`"
+              >{{ digit }}</span>
             </span>
             <span v-show="groupIndex !== 3" class="separator">.</span>
           </span>
@@ -339,7 +344,7 @@ body
   .binary
     .group
       .digit
-        color: rgb(0, 0, var(--value))
+        color: rgb(var(--value), var(--value), 255)
       // color: rgb(var(--value), calc(var(--value) + 130), 255)
 
   .decimal
