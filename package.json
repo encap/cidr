@@ -4,8 +4,16 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "electron:build": "vue-cli-service electron:build",
+    "windows": "vue-cli-service electron:build --windows",
+    "electron:serve": "vue-cli-service electron:serve",
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps",
+    "packager": "electron-packager ./dist_electron/win-unpacked --platform=win32",
+    "start": "electron ./dist_electron/win-unpacked"
   },
+  "main": "background.js",
   "dependencies": {
     "vue": "^2.6.11",
     "vue-router": "^3.2.0"
@@ -15,11 +23,15 @@
     "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "@vue/eslint-config-airbnb": "^5.0.2",
+    "electron": "^11.0.3",
+    "electron-devtools-installer": "^3.1.0",
+    "electron-packager": "^15.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-vue": "^6.2.2",
     "node-sass": "^5.0.0",
     "sass-loader": "^10.1.0",
+    "vue-cli-plugin-electron-builder": "~2.0.0-rc.5",
     "vue-template-compiler": "^2.6.11"
   }
 }

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get network address from host IP and mask</title>
+
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      justify-content: space-around;
+      background: #1f232c;
+      color: white;
+      height: 80vh;
+    }
+
+    .author {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      font-size: 0.8rem;
+      color: #ddd;
+    }
+
+
+  </style>
+</head>
+<body>
+  <main>
+
+  <h3>Type host address and mask</h3>
+  <input type="text" id="input" placeholder="192.168.34.6/8">
+  <h2>Network address:</h2>
+  <h2 id="results"></h2>
+</main>
+
+<div class="author">Made by Łukasz Wielgus</div>
+
+  <script defer>
+inputEl = document.getElementById('input');
+resultsEl = document.getElementById('results');
+
+inputEl.addEventListener('input', (ev) => {
+  const [host, mask] = ev.target.value.split('/');
+
+  if (host.split('.').length !== 4 || mask === undefined || !mask.length ||isNaN(mask)) {
+    console.warn('invalid input')
+    return;
+  }
+
+  const arrBinHost = host.split('.').map((octet) => {
+    const octetArr = Number(octet).toString(2).split('');
+    const octetArrLength = octetArr.length
+    if (octetArrLength < 8) {
+      for (let i = 0; i < 8 - octetArrLength; i += 1) {
+        octetArr.unshift('0');
+      }
+    };
+    return octetArr;
+  });
+  console.log(arrBinHost);
+  
+  
+  const binMask = Array(Number(mask) + 1).join('1') + Array(32 - Number(mask) + 1).join('0');
+  
+  const arrBinMask = binMask.match(/.{1,8}/g).map((octet) => octet.split(''));
+  console.log(arrBinMask);
+  
+  const arrBinNet = arrBinMask
+    .map((octet, octetIndex) => {
+      return octet.map((digit, digitIndex) => 
+        Number(digit) === 1 && Number(arrBinHost[octetIndex][digitIndex]) === 1 ? "1" : "0" 
+      )
+    })
+  
+  console.log(arrBinNet)
+  
+  const netIP = arrBinNet.map((octet) => parseInt(octet.join(''), 2)).join('.');
+  
+  if (netIP === host) {
+    resultsEl.innerText = 'Network address is the same as host address'
+  } else {
+    resultsEl.innerText = netIP
+  }
+})
+
+  </script>
+</body>
+</html>
