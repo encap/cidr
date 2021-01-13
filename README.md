@@ -8,7 +8,7 @@ Later I added Electron.js to compile it into portable executable.
 
 ![thumbnail](./thumbnail.jpg)
 
-Build destination set to docs for Github Pages hosting.
+Build destination is set to docs for Github Pages hosting.
 
 ### Network IP address tool
 network_ip_tool.html is built in pure javascript using mainly array functions calculates network IP address from client IP and mask
