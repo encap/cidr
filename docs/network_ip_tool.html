@@ -6,7 +6,6 @@
   <title>Get network address from host IP and mask</title>
 
   <style>
-
     body {
       font-family: Arial, Helvetica, sans-serif;
       display: flex;
@@ -24,17 +23,19 @@
       color: #ddd;
     }
 
+
   </style>
 </head>
 <body>
   <main>
-    <h3>Type host address and mask</h3>
-    <input type="text" id="input" placeholder="192.168.34.6/8">
-    <h2>Network address:</h2>
-    <h2 id="results"></h2>
-  </main>
 
-  <div class="author">Made by Łukasz Wielgus</div>
+  <h3>Type host address and mask</h3>
+  <input type="text" id="input" placeholder="192.168.34.6/8">
+  <h2>Network address:</h2>
+  <h2 id="results"></h2>
+</main>
+
+<div class="author">Made by Łukasz Wielgus</div>
 
   <script defer>
 inputEl = document.getElementById('input');
@@ -44,13 +45,13 @@ inputEl.addEventListener('input', (ev) => {
   const [host, mask] = ev.target.value.split('/');
 
   if (host.split('.').length !== 4 || mask === undefined || !mask.length ||isNaN(mask)) {
-    console.warn('invalid input');
+    console.warn('invalid input')
     return;
   }
 
   const arrBinHost = host.split('.').map((octet) => {
     const octetArr = Number(octet).toString(2).split('');
-    const octetArrLength = octetArr.length;
+    const octetArrLength = octetArr.length
     if (octetArrLength < 8) {
       for (let i = 0; i < 8 - octetArrLength; i += 1) {
         octetArr.unshift('0');
@@ -78,9 +79,9 @@ inputEl.addEventListener('input', (ev) => {
   const netIP = arrBinNet.map((octet) => parseInt(octet.join(''), 2)).join('.');
   
   if (netIP === host) {
-    resultsEl.innerText = 'Network address is the same as host address';
+    resultsEl.innerText = 'Network address is the same as host address'
   } else {
-    resultsEl.innerText = netIP;
+    resultsEl.innerText = netIP
   }
 })
 
